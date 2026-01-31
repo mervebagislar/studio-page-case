@@ -1,0 +1,39 @@
+name: studio_page_case
+description: "A new Flutter project."
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^2.6.1
+  video_player: ^2.9.2
+  image_picker: ^1.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/fake/
+    - assets/logo.png
+    - assets/web-landing-video-mobile.mp4
+    - assets/website-mankenli.png
+    - assets/website-mankensiz.png
+    - assets/T2-dark.png
+    - assets/T2.png
+    - assets/T3-.png
+    - assets/T3-dark-.png
+    - assets/instagram-estetik.jpg
+    - assets/outdoor-mankenli.jpg
+    - assets/outdoor-mankensiz.png
+    - assets/stillife-mankenli.jpg
+    - assets/stillife-mankensiz.png
+  
