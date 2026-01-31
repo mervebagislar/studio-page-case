@@ -101,44 +101,12 @@ Minimal örnek; feature-first yapı:
 lib/
 ├── main.dart
 ├── core/
-│   ├── router/
-│   │   └── app_router.dart
-│   └── theme/
-│       ├── app_theme.dart
-│       └── theme_mode_provider.dart
-└── features/
-    ├── splash/
-    │   └── presentation/
-    │       └── splash_screen.dart
-    └── studio/
-        ├── data/
-        │   ├── generation_service.dart
-        │   └── models/
-        │       ├── generation_config.dart
-        │       ├── generation_result.dart
-        │       └── generation.dart
-        ├── presentation/
-        │   ├── pages/
-        │   │   ├── studio_page.dart
-        │   │   └── studio_results_detail_page.dart
-        │   └── widgets/
-        │       ├── bars/
-        │       ├── common/
-        │       ├── editors/
-        │       │   ├── shared/          # Ortak: scaffold, section, action bar, image upload, modal
-        │       │   ├── visual_editor/
-        │       │   ├── instagram_editor/
-        │       │   ├── video_editor/
-        │       │   ├── custom_prompt/
-        │       │   ├── background_editor/
-        │       │   └── studio_configuration/
-        │       ├── results/
-        │       └── studio_scopes/       # Loading, error, results, empty, saved
-        └── state/
-            ├── generation/              # StudioController, GenerationHistory, service provider
-            ├── saved/
-            ├── selection/
-            └── ui/                      # Constants, UI providers
+├── features/
+│   ├── splash/
+│   └── studio/
+│       ├── data/
+│       ├── presentation/
+│       └── state/
 ```
 
 - **core:** Router, tema; feature’lardan bağımsız.
@@ -174,15 +142,6 @@ Case study’de tüm süreç mock’tur. **Gerçek production’da** mobil uygul
 
 Böylece uzun süren üretim HTTP isteğini bloke etmez; backend ve generation servisi birbirinden bağımsız ölçeklenebilir.
 
-### 6.2 Yüksek trafik için önerilen teknolojiler ve stratejiler
-
-- **API katmanı:** Stateless; sadece istek kabul, doğrulama ve kuyruk yazma. **Yatay ölçekleme:** Load balancer + çoklu API instance.
-- **Job queue:** **Redis Queue**, **RabbitMQ**, **AWS SQS**, **Google Cloud Tasks** — üretim isteklerinin kaybolmadan sırayla işlenmesi; retry (dead-letter queue, exponential backoff).
-- **Generation worker’lar:** Kuyruktan iş alan, ağır işi (AI, render) yapan servisler. Worker sayısı kuyruk derinliğine göre ayarlanır; CPU/GPU yoğun işler ayrı pool’larda.
-- **Depo:** Sonuçlar ve meta veri için **DB** + **object storage** (S3, GCS); API ve worker’lar sadece bu depoyu okur/yazar.
-- **İstemci bildirimi:** **Polling** (GET /jobs/:id veya /generations/:id) veya **push** (WebSocket, **FCM**) ile “job completed” bildirimi.
-- **Mobil tarafta:** Mevcut “loading mesajları” ve “sonuçlar hazır olunca ekran” davranışı, production’da bu async job + status/push modeline bire bir karşılık gelir; ek olarak job id ile durum sorgulama ve push dinleme eklenir.
-
 ---
 
 ## 7. Değerlendirme Kriterleri (Case Study Referansı)
@@ -191,15 +150,14 @@ README, case study’de belirtilen kriterlere göre kısa referans:
 
 | Kriter | Durum |
 |--------|--------|
-| Kullanıcı seçeneklerini yapılandırma | Editörler (Görsel, Instagram, Video, Özel Prompt, Arka Plan) ile config seçimi; StudioController.updateConfig. |
+| Kullanıcı seçeneklerini yapılandırma | Editörler ile config seçimi. |
 | Generate ile üretim başlatma | “Oluştur” butonu → StudioController.generate(type). |
-| Asenkron mock üretim süreci | GenerationService: Future.delayed + List<GenerationResult>; loading mesajları controller’da. |
+| Asenkron mock üretim süreci | GenerationService: Future.delayed + List<GenerationResult>. |
 | Birden fazla sonuç listesi | StudioState.results → grid; GenerationHistory ile geçmiş listesi. |
-| Sonuç detaylarını görüntüleme | StudioResultsDetailPage: seçim, indir, tam ekran, alt aksiyonlar. |
-| Yeni üretim başlatabilme | “Tekrar Oluştur” (son tip ile); yeni editör seçimi → Oluştur. |
-| Durum yönetimi | Riverpod (NotifierProvider, Provider, StateProvider); immutable state, ref.watch/ref.read. |
-| UI/UX geri bildirimleri | Loading scope, error scope, snack bar, platform-aware butonlar (Cupertino/Material). |
-| Kapsam dışı (backend, API, AI) | Tüm veri mock; ağ çağrısı yok. |
+| Sonuç detaylarını görüntüleme | StudioResultsDetailPage: seçim, indir, tam ekran. |
+| Yeni üretim başlatabilme | “Tekrar Oluştur” (son tip ile). |
+| Durum yönetimi | Riverpod. |
+| UI/UX geri bildirimleri | Loading/error scope, snack bar, platform-aware UI. |
 
 ---
 
@@ -209,7 +167,5 @@ README, case study’de belirtilen kriterlere göre kısa referans:
 - **flutter_riverpod** — state management  
 - **image_picker** — galeri/kamera  
 - **video_player** — splash / video  
-- **Mimari:** Feature-first (core + features/studio: data, presentation, state)  
-- **Platform:** iOS & Android (Material + seçili Cupertino kullanımı, SafeArea)
-
-Case study teslimi için akış özeti, asenkron yaklaşım, Riverpod kullanımı, mock servis mantığı, kurulum, klasör yapısı, bağımlılıklar, opsiyonel production mimarisi ve değerlendirme kriterleri yukarıda özetlendi.
+- **Mimari:** Feature-first  
+- **Platform:** iOS & Android
